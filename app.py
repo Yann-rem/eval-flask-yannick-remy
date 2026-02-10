@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from pydantic import BaseModel, Field
 
@@ -34,3 +34,10 @@ class CreateEventRequest(BaseModel):
 
 with app.app_context():
     db.create_all()
+
+
+@app.get("/")
+def list_events():
+    events = Event.query.all()
+
+    return render_template("home.html", events=events)
