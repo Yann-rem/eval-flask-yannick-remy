@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Flask, jsonify, render_template, redirect, request, url_for
+from flask import Flask, flash, jsonify, render_template, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from pydantic import BaseModel, field_validator, ValidationError
 from pydantic_core import PydanticCustomError
@@ -154,6 +154,8 @@ def create_event_post():
     db.session.add(new_event)
     db.session.commit()
 
+    flash("L'événement a été créé avec succès.", "success")
+
     return redirect(url_for("list_events"))
 
 
@@ -162,6 +164,7 @@ def delete_event(id):
     event = Event.query.get_or_404(id)
     db.session.delete(event)
     db.session.commit()
+    flash("L'événement a été supprimé.", "success")
     return redirect(url_for("list_events"))
 
 
