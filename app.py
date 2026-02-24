@@ -2,7 +2,8 @@ from datetime import datetime
 
 from flask import Flask, render_template, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic_core import PydanticCustomError
 
 app = Flask(__name__)
 app.secret_key = "metz-numeric-school"
@@ -26,11 +27,89 @@ class Event(db.Model):
 
 
 class CreateEventRequest(BaseModel):
-    title: str = Field(min_length=1, max_length=50)
-    type: str = Field(min_length=1, max_length=50)
+    title: str
+    type: str
     date: datetime
-    location: str = Field(min_length=1, max_length=100)
-    description: str = Field(min_length=1)
+    location: str
+    description: str
+
+    # https://docs.pydantic.dev/latest/concepts/validators/#raising-validation-errors
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value):
+        if not value or not value.strip():
+            raise PydanticCustomError("title_required", "Le titre est obligatoire")
+        if len(value.strip()) < 2:
+            raise PydanticCustomError(
+                "title_min_length", "Le titre doit contenir au minimum 2 caractères"
+            )
+        if len(value) > 50:
+            raise PydanticCustomError(
+                "title_max_length", "Le titre doit contenir au maximum 50 caractères"
+            )
+        return value.strip()
+
+    @field_validator("type")
+    @classmethod
+    def validate_type(cls, value):
+        if not value or not value.strip():
+            raise PydanticCustomError("type_required", "Le type est obligatoire")
+        if len(value.strip()) < 2:
+            raise PydanticCustomError(
+                "type_min_length", "Le type doit contenir au minimum 2 caractères"
+            )
+        if len(value) > 50:
+            raise PydanticCustomError(
+                "type_max_length", "Le type doit contenir au maximum 50 caractères"
+            )
+        return value.strip()
+
+    @field_validator("date", mode="before")
+    @classmethod
+    def validate_date(cls, value):
+        if not value:
+            raise PydanticCustomError("date_required", "La date est obligatoire")
+        if isinstance(value, str):
+            try:
+                value = datetime.fromisoformat(value)
+            except ValueError:
+                raise PydanticCustomError(
+                    "date_invalid", "Le format de la date est invalide"
+                )
+        if value < datetime.now():
+            raise PydanticCustomError(
+                "date_past", "la date doit être postérieure à la date du jour"
+            )
+        return value
+
+    @field_validator("location")
+    @classmethod
+    def validate_location(cls, value):
+        if not value or not value.strip():
+            raise PydanticCustomError("location_required", "Le lieu est obligatoire")
+        if len(value.strip()) < 2:
+            raise PydanticCustomError(
+                "location_min_length", "Le lieu doit contenir au minimum 2 caractères"
+            )
+        if len(value) > 100:
+            raise PydanticCustomError(
+                "location_max_length", "Le lieu doit contenir au maximum 100 caractères"
+            )
+        return value.strip()
+
+    @field_validator("description")
+    @classmethod
+    def validate_description(cls, value):
+        if not value or not value.strip():
+            raise PydanticCustomError(
+                "description_required", "La description est obligatoire"
+            )
+        if len(value.strip()) < 2:
+            raise PydanticCustomError(
+                "description_min_length",
+                "La description doit contenir au minimum 2 caractères",
+            )
+        return value.strip()
 
 
 with app.app_context():
