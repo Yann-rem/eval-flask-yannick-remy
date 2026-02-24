@@ -155,3 +155,11 @@ def create_event_post():
     db.session.commit()
 
     return redirect(url_for("list_events"))
+
+
+@app.post("/evenements/<int:id>/supprimer")
+def delete_event(id):
+    event = Event.query.get_or_404(id)
+    db.session.delete(event)
+    db.session.commit()
+    return redirect(url_for("list_events"))

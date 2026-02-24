@@ -4,10 +4,15 @@
     {% if events %}
         <ul>
             {% for event in events %}
-                <li>{{ event.title }}</li>
+                <li>
+                    {{ event.title }}
+                    <form action="{{ url_for('delete_event', id=event.id) }}" method="POST">
+                        <button type="submit">Supprimer</button>
+                    </form>
+                </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>Aucun événement n’est programmé.</p>
+        <p>Aucun événement n'est programmé.</p>
     {% endif %}
-{% endblock%}
+{% endblock %}
