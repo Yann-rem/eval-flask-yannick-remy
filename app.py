@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, jsonify, render_template, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, field_validator, ValidationError
 from pydantic_core import PydanticCustomError
 
 app = Flask(__name__)
@@ -163,3 +163,27 @@ def delete_event(id):
     db.session.delete(event)
     db.session.commit()
     return redirect(url_for("list_events"))
+
+
+@app.get("/api/evenements")
+def api_next_events():
+    upcoming_events = (
+        Event.query.filter(Event.date >= datetime.now())
+        .order_by(Event.date.asc())
+        .limit(5)
+        .all()
+    )
+
+    events = [
+        {
+            "id": event.id,
+            "title": event.title,
+            "type": event.type,
+            "date": event.date.isoformat(),
+            "location": event.location,
+            "description": event.description,
+        }
+        for event in upcoming_events
+    ]
+
+    return jsonify({"events": events}), 200
