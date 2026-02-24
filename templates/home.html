@@ -2,17 +2,25 @@
 
 {% block content %}
     {% if events %}
-        <ul>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for event in events %}
-                <li>
-                    {{ event.title }}
-                    <form action="{{ url_for('delete_event', id=event.id) }}" method="POST">
-                        <button type="submit">Supprimer</button>
+                <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-lg font-bold text-gray-800">{{ event.title }}</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ event.type }}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-1">{{ event.date.strftime('%d %B %Y') }}</p>
+                        <p class="text-sm text-gray-600 mb-3">{{ event.location }}</p>
+                        <p class="text-gray-700 text-sm line-clamp-3">{{ event.description }}</p>
+                    </div>
+                    <form action="{{ url_for('delete_event', id=event.id) }}" method="POST" class="mt-4">
+                        <button type="submit" class="bg-red-600 text-white text-sm px-4 py-2 rounded hover:bg-red-700 w-full">Supprimer</button>
                     </form>
-                </li>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>Aucun événement n'est programmé.</p>
+        <p class="text-gray-500 text-center">Aucun événement n'est programmé.</p>
     {% endif %}
 {% endblock %}

@@ -5,16 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Évaluation Flask</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <main>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('list_events') }}" class="text-xl font-bold text-gray-800">Gestion d'événements</a>
+            <a href="{{ url_for('create_event_get') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter un événement</a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div>
+                    <div class="mb-4 px-4 py-3 rounded flex items-center justify-between
+                        {% if category == 'error' %}bg-red-100 text-red-800 border border-red-300
+                        {% else %}bg-green-100 text-green-800 border border-green-300{% endif %}">
                         <span>{{ message }}</span>
-                        <button onclick="this.parentElement.remove()">&times;</button>
+                        <button onclick="this.parentElement.remove()" class="ml-4 text-lg font-bold leading-none hover:opacity-70">&times;</button>
                     </div>
                 {% endfor %}
             {% endif %}
